@@ -8,7 +8,6 @@ allowed-tools:
   - read_buffer_in_workspace
   - read_media_in_workspace
   - list_buffers_in_workspace
-  - search_buffers_in_workspace
   - spawn_subagent
   - delegate_tasks_to_subagents
   - execute_subagents

@@ -1,7 +1,7 @@
 ;;; macher-agent-skills.el --- Agent Skills parsing and resolution -*- lexical-binding: t -*-
 
 ;; Author: Elijah Charles
-;; Version: 0.0.2
+;; Version: 0.1.0
 ;; Package-Requires: ((emacs "29.1") (gptel "0.9.0") (macher "0.5.0"))
 ;; Keywords: convenience, gptel, llm, macher
 ;; URL: https://github.com/elij/macher-agent
