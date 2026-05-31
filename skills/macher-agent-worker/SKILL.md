@@ -8,7 +8,6 @@ allowed-tools:
   - read_buffer_in_workspace
   - read_media_in_workspace
   - list_buffers_in_workspace
-  - search_buffers_in_workspace
   - multi_edit_buffer_in_workspace
   - write_buffer_in_workspace
   - submit_task_result

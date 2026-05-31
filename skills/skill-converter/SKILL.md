@@ -8,7 +8,6 @@ allowed-tools:
   - read_buffer_in_workspace
   - read_media_in_workspace
   - list_buffers_in_workspace
-  - search_buffers_in_workspace
   - multi_edit_buffer_in_workspace
   - write_buffer_in_workspace
 ---
@@ -33,30 +32,29 @@ Your objective is to convert an existing Claude-style skill into a macher-agent 
 For tools executing shell scripts against the workspace, use `macher-agent-make-tool`. It supports `:command-fn`, `:output-filter`, and `:success-fn`:
 
 ```elisp
-(macher-agent-make-tool
- :name "run_tests"
- :description "Run test suite."
- :category "test-tools"
- :args (list '(:name "path" :type string :description "Path to test directory"))
- :command-fn (lambda (args)
-               (let ((path (plist-get args :path)))
-                 (format "pytest %s </dev/null 2>&1" path)))
- :output-filter (lambda (raw-output)
-                  (if (string-match-p "failed" raw-output)
-                      raw-output
-                    "SUCCESS: Tests passed.")))
+(macher-agent-make-tool macher-agent-cargo-test-tool
+  ("Run 'cargo test' to test the project."
+   "rust"
+   :async t
+   :sandbox t)
+  ()
+  (macher-agent--run-async-cmd
+   "cargo-test" "rtk cargo test </dev/null 2>&1" sandbox-dir
+   (lambda (exit-code output)
+     (if (= exit-code 0)
+         (funcall gptel-callback (concat "SUCCESS: The tests ran perfectly with no errors.\n\n=== TEST OUTPUT ===\n" output))
+       (funcall gptel-callback output)))))
 ```
 
-#### Pure Emacs Tool (`gptel-make-tool`)
+#### Pure Emacs Tool
 For tools interacting with Emacs buffers directly without running shell commands on the physical filesystem:
 
 ```elisp
-(gptel-make-tool
- :name "count_words"
- :description "Count words in the current buffer."
- :args nil
- :function (lambda ()
-             (format "Words: %d" (count-words (point-min) (point-max)))))
+(macher-agent-make-tool macher-agent-get-current-datetime-tool
+  ("Fetch the current system date and time. Use this when you need to know the current date, time, or day of the week to answer a time-sensitive query."
+   "system")
+  ()
+  (format-time-string "%A, %d %B %Y, %T %Z"))
 ```
 
 3. **Execution Model:**

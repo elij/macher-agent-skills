@@ -8,7 +8,6 @@ allowed-tools:
   - read_buffer_in_workspace
   - read_media_in_workspace
   - list_buffers_in_workspace
-  - search_buffers_in_workspace
   - multi_edit_buffer_in_workspace
   - write_buffer_in_workspace
   - spawn_subagent
@@ -78,29 +77,30 @@ It accepts `:command-fn` (returns the shell string), `:success-fn`, and `:output
 
 **Example:**
 ```elisp
-(macher-agent-make-tool
- :name "cargo_check"
- :description "Run 'cargo check' to compile the project."
- :category "rust-dev"
- :args nil
- :command-fn (lambda (_) "cargo check </dev/null 2>&1")
- :success-fn (lambda (_) "SUCCESS: The code compiled perfectly with no errors.")
- :output-filter (lambda (raw) (if (> (length raw) 1000) (substring raw 0 1000) raw)))
+(macher-agent-make-tool macher-agent-cargo-check-tool
+  ("Run 'cargo check' to compile the project."
+   "rust"
+   :async t
+   :sandbox t)
+  ()
+  (macher-agent--run-async-cmd
+   "cargo-check" "rtk cargo check </dev/null 2>&1" sandbox-dir
+   (lambda (exit-code output)
+     (if (= exit-code 0)
+         (funcall gptel-callback (concat "SUCCESS: The code compiled perfectly with no errors.\n\n=== COMPILER OUTPUT ===\n" output))
+       (funcall gptel-callback output)))))
 ```
 
-### Pure Emacs Operations (`gptel-make-tool`)
-If the tool interacts entirely with Emacs buffers, text, or internal logic, use the standard `gptel-make-tool` and provide a `:function`.
+### Pure Emacs Operations
+If the tool interacts entirely with Emacs buffers, text, or internal logic, use the standard this concise version.
 
 **Example:**
 ```elisp
-(gptel-make-tool
- :name "get_buffer_size"
- :description "Returns the size of an open buffer."
- :args (list '(:name "buf-name" :type string :description "Name of the buffer"))
- :function (lambda (buf-name)
-             (if-let ((buf (get-buffer buf-name)))
-                 (format "Size: %d bytes" (buffer-size buf))
-               "Error: Buffer not found.")))
+(macher-agent-make-tool macher-agent-get-current-datetime-tool
+  ("Fetch the current system date and time. Use this when you need to know the current date, time, or day of the week to answer a time-sensitive query."
+   "system")
+  ()
+  (format-time-string "%A, %d %B %Y, %T %Z"))
 ```
 
 ## Creating a Skill
@@ -110,7 +110,7 @@ Start by extracting the user's intent. What should the sub-agent do? What input 
 If the user's request requires capabilities not covered by the default workspace tools (like interacting with a specific Emacs mode, or parsing a complex log format), identify the need for a custom ELisp tool.
 
 ### Write the Tools
-Draft any necessary ELisp scripts in `skills/scripts/`. Follow the established format using `macher-agent-make-tool` or `gptel-make-tool`. Keep tool logic small, robust, and explicitly documented.
+Draft any necessary ELisp scripts in `skills/scripts/`. Follow the established format using `macher-agent-make-tool`. Keep tool logic small, robust, and explicitly documented.
 
 ### Write the SKILL.md
 Draft the markdown body.
