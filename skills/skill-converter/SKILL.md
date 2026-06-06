@@ -5,6 +5,11 @@ allowed-tools:
   - read_file_in_workspace
   - list_directory_in_workspace
   - search_in_workspace
+  - edit_file_in_workspace
+  - multi_edit_file_in_workspace
+  - write_file_in_workspace
+  - move_file_in_workspace
+  - delete_file_in_workspace
   - read_buffer_in_workspace
   - read_media_in_workspace
   - list_buffers_in_workspace
@@ -33,17 +38,15 @@ For tools executing shell scripts against the workspace, use `macher-agent-make-
 
 ```elisp
 (macher-agent-make-tool macher-agent-cargo-test-tool
-  ("Run 'cargo test' to test the project."
-   "rust"
-   :async t
-   :sandbox t)
-  ()
-  (macher-agent--run-async-cmd
-   "cargo-test" "rtk cargo test </dev/null 2>&1" sandbox-dir
-   (lambda (exit-code output)
-     (if (= exit-code 0)
-         (funcall gptel-callback (concat "SUCCESS: The tests ran perfectly with no errors.\n\n=== TEST OUTPUT ===\n" output))
-       (funcall gptel-callback output)))))
+  "Run 'cargo test' to test the project."
+  :category "rust"
+  :args nil
+  :command-fn (lambda (_payload)
+                (make-macher-agent-tool-response
+                 :type 'process
+                 :payload "rtk cargo test </dev/null 2>&1"))
+  :success-fn (lambda (output)
+                (concat "SUCCESS: The tests ran perfectly with no errors.\n\n=== TEST OUTPUT ===\n" output)))
 ```
 
 #### Pure Emacs Tool
@@ -51,10 +54,13 @@ For tools interacting with Emacs buffers directly without running shell commands
 
 ```elisp
 (macher-agent-make-tool macher-agent-get-current-datetime-tool
-  ("Fetch the current system date and time. Use this when you need to know the current date, time, or day of the week to answer a time-sensitive query."
-   "system")
-  ()
-  (format-time-string "%A, %d %B %Y, %T %Z"))
+  "Fetch the current system date and time. Use this when you need to know the current date, time, or day of the week to answer a time-sensitive query."
+  :category "system"
+  :args nil
+  :command-fn (lambda (_payload)
+                (make-macher-agent-tool-response
+                 :type 'lisp-result
+                 :payload (format-time-string "%A, %d %B %Y, %T %Z"))))
 ```
 
 3. **Execution Model:**

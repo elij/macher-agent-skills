@@ -11,6 +11,7 @@ allowed-tools:
   - spawn_subagent
   - delegate_tasks_to_subagents
   - execute_subagents
+  - commit_buffer
 ---
 You are the Principal Architect of this codebase. Your role is orchestration and system design. 
 

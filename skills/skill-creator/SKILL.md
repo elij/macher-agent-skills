@@ -5,6 +5,11 @@ allowed-tools:
   - read_file_in_workspace
   - list_directory_in_workspace
   - search_in_workspace
+  - edit_file_in_workspace
+  - multi_edit_file_in_workspace
+  - write_file_in_workspace
+  - move_file_in_workspace
+  - delete_file_in_workspace
   - read_buffer_in_workspace
   - read_media_in_workspace
   - list_buffers_in_workspace
@@ -78,17 +83,15 @@ It accepts `:command-fn` (returns the shell string), `:success-fn`, and `:output
 **Example:**
 ```elisp
 (macher-agent-make-tool macher-agent-cargo-check-tool
-  ("Run 'cargo check' to compile the project."
-   "rust"
-   :async t
-   :sandbox t)
-  ()
-  (macher-agent--run-async-cmd
-   "cargo-check" "rtk cargo check </dev/null 2>&1" sandbox-dir
-   (lambda (exit-code output)
-     (if (= exit-code 0)
-         (funcall gptel-callback (concat "SUCCESS: The code compiled perfectly with no errors.\n\n=== COMPILER OUTPUT ===\n" output))
-       (funcall gptel-callback output)))))
+  "Run 'cargo check' to compile the project."
+  :category "rust"
+  :args nil
+  :command-fn (lambda (_payload)
+                (make-macher-agent-tool-response
+                 :type 'process
+                 :payload "rtk cargo check </dev/null 2>&1"))
+  :success-fn (lambda (output)
+                (concat "SUCCESS: The code compiled perfectly with no errors.\n\n=== COMPILER OUTPUT ===\n" output)))
 ```
 
 ### Pure Emacs Operations
@@ -97,10 +100,13 @@ If the tool interacts entirely with Emacs buffers, text, or internal logic, use 
 **Example:**
 ```elisp
 (macher-agent-make-tool macher-agent-get-current-datetime-tool
-  ("Fetch the current system date and time. Use this when you need to know the current date, time, or day of the week to answer a time-sensitive query."
-   "system")
-  ()
-  (format-time-string "%A, %d %B %Y, %T %Z"))
+  "Fetch the current system date and time. Use this when you need to know the current date, time, or day of the week to answer a time-sensitive query."
+  :category "system"
+  :args nil
+  :command-fn (lambda (_payload)
+                (make-macher-agent-tool-response
+                 :type 'lisp-result
+                 :payload (format-time-string "%A, %d %B %Y, %T %Z"))))
 ```
 
 ## Creating a Skill
