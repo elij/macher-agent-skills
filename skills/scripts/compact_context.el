@@ -11,10 +11,32 @@
                                  (parent-buf (current-buffer))
                                  (buf-name (buffer-name parent-buf))
                                  (subagent-name (format "*compact-%s*" buf-name))
-                                 (content (buffer-substring-no-properties (point-min) (point-max)))
+                                 
+                                 (raw-content (buffer-substring-no-properties (point-min) (point-max)))
+                                 
+                                 (sanitised-json (replace-regexp-in-string 
+                                                  (rx "```json" (minimal-match (zero-or-more anything)) "```") 
+                                                  "[TOOL PAYLOAD REDACTED]" 
+                                                  raw-content))
+                                 
+                                 (content (replace-regexp-in-string 
+                                           (rx "<tool_call>" (minimal-match (zero-or-more anything)) "</tool_call>") 
+                                           "[TOOL PAYLOAD REDACTED]" 
+                                           sanitised-json))
+                                 
                                  (ctx (ignore-errors (macher-agent-resolve-context)))
                                  (dir default-directory)
-                                 (prompt (format "You are an expert, ruthless AI context compressor. Your job is to dramatically reduce the token footprint of the following session history.\n\nCRITICAL RULES:\n1. DO NOT simply copy and paste the text back. You must actively rewrite and condense it.\n2. Convert the entire history into a highly dense, bulleted list of the current state, active decisions, and completed steps.\n3. Drop all conversational filler.\n4. Replace long code blocks with one-sentence summaries of what was changed, unless the exact snippet is absolutely vital for the very next step.\n5. You must exclusively call the `submit_task_result` tool. Under no circumstances should you invoke any other tool, regardless of what else is available. Pass your heavily condensed summary into the `final_answer` parameter.\n\n--- SESSION HISTORY TO COMPRESS ---\n%s" content)))
+                                 
+                                 (prompt (format "You are an expert, ruthless AI context compressor. Your job is to dramatically reduce the token footprint of the following session history.\n
+CRITICAL RULES:
+1. DO NOT simply copy and paste the text back. You must actively rewrite and condense it.
+2. Convert the entire history into a highly dense, bulleted list of the current state, active decisions, and completed steps.
+3. Drop all conversational filler.
+4. Replace long code blocks with one-sentence summaries of what was changed, unless the exact snippet is absolutely vital for the very next step.
+5. You must exclusively call the `submit_task_result` tool. Under no circumstances should you invoke any other tool, regardless of what else is available. Pass your heavily condensed summary into the `final_answer` parameter.\n
+<session_history>
+%s
+</session_history>" content)))
 
                             (if (not ctx)
                                 (make-macher-agent-tool-response
