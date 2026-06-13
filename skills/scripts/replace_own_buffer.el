@@ -15,6 +15,5 @@
                                 (insert content)
                                 (goto-char (point-max))))
                             
-                            (make-macher-agent-tool-response
-                             :type 'lisp-result
+                            (make-macher-agent-lisp-result-response
                              :payload "SYSTEM: Your buffer has been overwritten successfully."))))
