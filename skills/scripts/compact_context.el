@@ -27,20 +27,23 @@
                                  (ctx (ignore-errors (macher-agent-resolve-context)))
                                  (dir default-directory)
                                  
-                                 (prompt (format "You are an expert, ruthless AI context compressor. Your job is to dramatically reduce the token footprint of the following session history.\n
+                                 (prompt (format "You are an expert, ruthless AI context compressor. Your job is to dramatically reduce the token footprint of the following session history.
+
 CRITICAL RULES:
 1. DO NOT simply copy and paste the text back. You must actively rewrite and condense it.
 2. Convert the entire history into a highly dense, bulleted list of the current state, active decisions, and completed steps.
 3. Drop all conversational filler.
 4. Replace long code blocks with one-sentence summaries of what was changed, unless the exact snippet is absolutely vital for the very next step.
-5. You must exclusively call the `submit_task_result` tool. Under no circumstances should you invoke any other tool, regardless of what else is available. Pass your heavily condensed summary into the `final_answer` parameter.\n
+5. You must exclusively call the `submit_task_result` tool. Under no circumstances should you invoke any other tool, regardless of what else is available. Pass your heavily condensed summary into the `final_answer` parameter.
+
 <session_history>
 %s
 </session_history>" content)))
 
                             (if (not ctx)
-                                (make-macher-agent-tool-response
-                                 :type 'error
+                                (make-macher-agent-lisp-result-response
+                                 :status 'error
+                                 :error "FAILED: No active context found."
                                  :payload "FAILED: No active context found.")
 
                               (macher-agent-add-subagent subagent-name dir nil ctx preset)
@@ -50,10 +53,9 @@ CRITICAL RULES:
                               (let ((task (list :buffer_name subagent-name
                                                 :instructions prompt
                                                 :preset preset)))
-                                (make-macher-agent-tool-response 
-                                 :type 'delegate 
+                                (make-macher-agent-delegate-response 
                                  :payload (vconcat (list task)))))))
-                        
+
                         :success-fn
                         (lambda (results)
                           (let* ((res (if (vectorp results) (elt results 0) (car results)))
