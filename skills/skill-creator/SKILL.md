@@ -45,7 +45,7 @@ Macher-agent skills are fundamentally different from Claude skills.
 1. **No bundled scripts directory:** Instead of Python scripts bundled inside a skill folder, macher-agent shares executable tools across the workspace. Custom tools must be written as Emacs Lisp scripts in the `skills/scripts/` directory.
 2. **Explicit Allowed Tools:** The skill frontmatter MUST contain an `allowed-tools` list.
 3. **Model Selection:** Unlike Claude skills, a macher-agent SKILL.md **can** enforce a specific model. You can specify it in the frontmatter (e.g., `model: claude-3-5-sonnet-20241022`). If omitted, it inherits from the user's environment.
-4. **Presets / Roles:** A skill effectively acts as a system prompt override (a preset) for an agent. 
+4. **Composable Presets:** A skill acts as a modular system prompt. Thanks to the native composition engine, sub-agents can be given multiple skills at once via a JSON array (for example `presets: ["rust-developer", "workspace-manager"]`), which seamlessly merges their allowed tools and system instructions into a unified context.
 
 ### Structure
 
@@ -87,9 +87,8 @@ It accepts `:command-fn` (returns the shell string), `:success-fn`, and `:output
   :category "rust"
   :args nil
   :command-fn (lambda (_payload)
-                (make-macher-agent-tool-response
-                 :type 'process
-                 :payload "rtk cargo check </dev/null 2>&1"))
+                (make-macher-agent-process-response
+                 :payload "rtk cargo test </dev/null 2>&1"))
   :success-fn (lambda (output)
                 (concat "SUCCESS: The code compiled perfectly with no errors.\n\n=== COMPILER OUTPUT ===\n" output)))
 ```
@@ -104,8 +103,7 @@ If the tool interacts entirely with Emacs buffers, text, or internal logic, use 
   :category "system"
   :args nil
   :command-fn (lambda (_payload)
-                (make-macher-agent-tool-response
-                 :type 'lisp-result
+                (make-macher-agent-lisp-result-response
                  :payload (format-time-string "%A, %d %B %Y, %T %Z"))))
 ```
 

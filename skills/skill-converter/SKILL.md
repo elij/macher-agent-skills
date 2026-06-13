@@ -1,3 +1,4 @@
+
 ---
 name: "skill-converter"
 description: "Convert a Claude-style skill into a macher-agent compatible skill. Translates instructions, extracts bundled scripts into Emacs Lisp tools, and updates the frontmatter format."
@@ -42,8 +43,7 @@ For tools executing shell scripts against the workspace, use `macher-agent-make-
   :category "rust"
   :args nil
   :command-fn (lambda (_payload)
-                (make-macher-agent-tool-response
-                 :type 'process
+                (make-macher-agent-process-response
                  :payload "rtk cargo test </dev/null 2>&1"))
   :success-fn (lambda (output)
                 (concat "SUCCESS: The tests ran perfectly with no errors.\n\n=== TEST OUTPUT ===\n" output)))
@@ -58,8 +58,7 @@ For tools interacting with Emacs buffers directly without running shell commands
   :category "system"
   :args nil
   :command-fn (lambda (_payload)
-                (make-macher-agent-tool-response
-                 :type 'lisp-result
+                (make-macher-agent-lisp-result-response
                  :payload (format-time-string "%A, %d %B %Y, %T %Z"))))
 ```
 
