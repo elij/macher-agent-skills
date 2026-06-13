@@ -1,5 +1,5 @@
 (macher-agent-make-tool macher-agent-eval-elisp-tool
-    "Evaluate Emacs Lisp code to perform math, string manipulation, or data generation."
+    "Evaluate Emacs Lisp code to perform maths operations, string manipulation, or data generation."
   :category "compute"
   :args '((:name "code" :type string :description "The Emacs Lisp code to evaluate. The final form will be returned to you."))
   :command-fn (lambda (payload)
