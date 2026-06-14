@@ -1,3 +1,4 @@
+;; an example eval tool -- recommended an environment like deno is used with -no-allow-read, --no-allow-write, --no-allow-net in practice
 (macher-agent-make-tool macher-agent-eval-elisp-tool
     "Evaluate Emacs Lisp code to perform maths operations, string manipulation, or data generation."
   :category "compute"
