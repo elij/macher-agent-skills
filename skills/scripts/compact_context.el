@@ -12,22 +12,28 @@
            (buf-name (buffer-name parent-buf))
            (subagent-name (format "*compact-%s*" buf-name))
            
-           (raw-content (buffer-substring-no-properties (point-min) (point-max)))
-           
-           (sanitised-json (replace-regexp-in-string 
-                            (rx "```json" (minimal-match (zero-or-more anything)) "```") 
-                            "[TOOL PAYLOAD REDACTED]" 
-                            raw-content))
-           
-           (content (replace-regexp-in-string 
-                     (rx "<tool_call>" (minimal-match (zero-or-more anything)) "</tool_call>") 
-                     "[TOOL PAYLOAD REDACTED]" 
-                     sanitised-json))
-           
-           (ctx (ignore-errors (macher-agent-resolve-context)))
-           (dir default-directory)
-           
-           (prompt (format "You are an expert, ruthless AI context compressor. Your job is to dramatically reduce the token footprint of the following session history.
+           (raw-content (buffer-substring-no-properties (point-min) (point-max))))
+      
+      (if (string-match-p "<session_history>" raw-content)
+          (make-macher-agent-lisp-result-response
+           :status 'error
+           :error "ABORTED: Potential recursion detected. This buffer already contains a <session_history> tag."
+           :payload "ABORTED: You are attempting to call the compact tool from within a context that already contains session history. Do not invoke compaction recursively.")
+        
+        (let* ((sanitised-json (replace-regexp-in-string 
+                                (rx "```json" (minimal-match (zero-or-more anything)) "```") 
+                                "[TOOL PAYLOAD REDACTED]" 
+                                raw-content))
+               
+               (content (replace-regexp-in-string 
+                         (rx "<tool_call>" (minimal-match (zero-or-more anything)) "</tool_call>") 
+                         "[TOOL PAYLOAD REDACTED]" 
+                         sanitised-json))
+               
+               (ctx (ignore-errors (macher-agent-resolve-context)))
+               (dir default-directory)
+               
+               (prompt (format "You are an expert, ruthless AI context compressor. Your job is to dramatically reduce the token footprint of the following session history.
 
 CRITICAL RULES:
 1. DO NOT simply copy and paste the text back. You must actively rewrite and condense it.
@@ -41,21 +47,21 @@ CRITICAL RULES:
 %s
 </session_history>" content)))
 
-      (if (not ctx)
-          (make-macher-agent-lisp-result-response
-           :status 'error
-           :error "FAILED: No active context found."
-           :payload "FAILED: No active context found.")
+          (if (not ctx)
+              (make-macher-agent-lisp-result-response
+               :status 'error
+               :error "FAILED: No active context found."
+               :payload "FAILED: No active context found.")
 
-        (macher-agent-add-subagent subagent-name dir nil ctx preset)
+            (macher-agent-add-subagent subagent-name dir nil ctx preset)
 
-        (setq-local macher-agent--compaction-instructions instructions)
+            (setq-local macher-agent--compaction-instructions instructions)
 
-        (let ((task (list :buffer_name subagent-name
-                          :instructions prompt
-                          :preset preset)))
-          (make-macher-agent-delegate-response 
-           :payload (vconcat (list task)))))))
+            (let ((task (list :buffer_name subagent-name
+                              :instructions prompt
+                              :preset preset)))
+              (make-macher-agent-delegate-response 
+               :payload (vconcat (list task)))))))))
 
   :success-fn
   (lambda (results)
