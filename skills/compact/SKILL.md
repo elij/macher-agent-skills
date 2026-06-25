@@ -3,6 +3,7 @@ name: "compact"
 description: "Intelligent context management agent to shrink token footprint."
 allowed-tools:
   - "replace_own_buffer"
+exclusive: true
 ---
 # Context compactor
 
