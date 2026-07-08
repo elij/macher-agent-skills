@@ -1,23 +1,17 @@
-;; an example eval tool -- recommended an environment like deno is used with -no-allow-read, --no-allow-write, --no-allow-net in practice
 (macher-agent-make-tool macher-agent-eval-elisp-tool
     "Evaluate Emacs Lisp code to perform maths operations, string manipulation, or data generation."
   :category "compute"
   :args '((:name "code" :type string :description "The Emacs Lisp code to evaluate. The final form will be returned to you."))
   :command-fn (lambda (payload)
                 (let* ((code (plist-get payload :code))
-                       (temp-file (make-temp-file "macher-eval-"))
-                       (wrapped-code (format ";; -*- lexical-binding: t -*-\n(princ (condition-case err (progn %s) (error (error-message-string err))))" code))
-                       (result nil))
-                  
-                  (with-temp-file temp-file
-                    (insert wrapped-code))
-                  
-                  (unwind-protect
-                      (with-temp-buffer
-                        (call-process (expand-file-name invocation-name invocation-directory)
-                                      nil t nil "-Q" "--batch" "-l" temp-file)
-                        (setq result (string-trim (buffer-string))))
-                    (delete-file temp-file))
-                  
+                       (expression (condition-case nil
+                                       (car (read-from-string (format "(progn %s)" code)))
+                                     (error nil)))
+                       (result (if expression
+                                   (condition-case err
+                                       (let ((res (macher-agent-sandbox-run expression '(message))))
+                                         (format "%S" res))
+                                     (error (error-message-string err)))
+                                 "ERROR: Failed to parse code.")))
                   (make-macher-agent-lisp-result-response
                    :payload (format "EVALUATION RESULT:\n%s" result)))))
