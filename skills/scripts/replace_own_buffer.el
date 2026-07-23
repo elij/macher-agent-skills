@@ -5,7 +5,7 @@
                                        :type string
                                        :description "The complete text to replace your current buffer with. Ensure you include any pending instructions at the bottom."))
                         :command-fn
-                        (lambda (payload)
+                        (lambda (payload _context _root)
                           (let* ((content (plist-get payload :content))
                                  (target-buf (current-buffer))
                                  (hook-sym (make-symbol "macher-agent--one-shot-replace")))
