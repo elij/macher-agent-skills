@@ -1,4 +1,3 @@
-
 ---
 name: "skill-converter"
 description: "Convert a Claude-style skill into a macher-agent compatible skill. Translates instructions, extracts bundled scripts into Emacs Lisp tools, and updates the frontmatter format."
