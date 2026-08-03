@@ -1,7 +1,7 @@
 (macher-agent-make-tool macher-agent-eval-lisp-tool
     "Evaluate a simple Emacs Lisp expression."
   :category "execution"
-  :args '(("expression" . "string"))
+  :args (list (list :name "expression" :type 'string :description "The Emacs Lisp expression to evaluate"))
   :command-fn
   (lambda (payload _context _root)
     (let* ((expr-string (plist-get payload :expression))
