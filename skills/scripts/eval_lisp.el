@@ -1,19 +1,13 @@
-(macher-agent-make-tool
-    macher-agent-eval-lisp-tool
-    "Evaluate an Emacs Lisp code expression to perform mathematics operations, \
-string manipulation, or data generation."
+(macher-agent-make-tool macher-agent-eval-lisp-tool
+    "Evaluate a simple Emacs Lisp expression."
   :category "execution"
-  :args
-  '((:name "script"
-           :type string
-           :description "The Emacs Lisp code to evaluate."))
+  :args '(("expression" . "string"))
   :command-fn
   (lambda (payload _context _root)
-    (if-let* ((script (plist-get payload :script)))
-        (make-macher-agent-ptc-response
-         :payload script
-         :primitives
-         '(
-           nreverse sort delete delq nconc plist-put aset puthash remhash
-           error signal message random emacs-version))
-      (error "No script provided for Emacs Lisp evaluation"))))
+    (let* ((expr-string (plist-get payload :expression))
+           (expr (car (read-from-string expr-string)))
+           (eval-result (eval expr t)))
+      (format "%S" eval-result)))
+  :success-fn
+  (lambda (output)
+    (concat "Result: " output)))
