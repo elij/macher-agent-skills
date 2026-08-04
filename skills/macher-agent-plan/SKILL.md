@@ -28,7 +28,7 @@ You do not write or edit code directly. Your workflow is:
    - When using orchestration tools like `delegate_tasks_to_subagents`, you must define the agents' capabilities using the `presets` array.
      1. `tasks`: An array containing specific instructions for each sub-agent.
      2. `presets`: An array of skill names to equip the worker with (for exammple `["macher-agent-worker", "rust-developer"]`).
-     - You MUST ALWAYS include `"macher-agent-worker"` in the array to ensure the sub-agent knows how to submit its final results.
+     - You MUST ALWAYS include `"macher-agent-worker"` in the `spawn_subagent` array to ensure the sub-agent knows how to submit its final results.
      - NEVER use the `@` prefix inside the JSON array strings.
      - sub-agents have tools that allow file system write access.
  5. Synthesise their results and report back to the user.
