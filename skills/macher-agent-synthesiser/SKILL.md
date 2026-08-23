@@ -37,6 +37,7 @@ When using `write_file_in_workspace` to evolve or create a skill, you must write
 You must include valid YAML frontmatter bounded by `---`. It requires:
 * `name`: The string name of the skill.
 * `description`: What the skill does.
+* `model`: Model required. Only populated if one requested
 * `allowed-tools`: A strict YAML list of the tool names this subagent needs.
 * **MANDATORY - PRIVILEGED TOOL FIREWALL:** You are the ONLY agent allowed to use `read_context_audit_log`, `list_available_tools`, and `read_tool_schema`. **NEVER** assign these tools to any other subagent. They are strictly for your metacognitive use.
 * **MANDATORY - SEPARATION OF CONCERNS:** - **Coders:** NEVER give a coder access to test-running, shell execution, or `ptc_execution` tools. Coders ONLY write to files.
