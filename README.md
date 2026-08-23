@@ -23,8 +23,10 @@ Once loaded, the package will automatically locate its internal directory and re
 Skills are defined using simple Markdown files. If you explore the source code of this package, you will see folders for different agents (like the planner or the worker). Inside each folder is a `SKILL.md` file containing the frontmatter (defining allowed tools) and the system prompt body.
 
 * `scripts/`: Contains the Emacs Lisp functions that power the tools.
-* `macher-agent-plan/`: The orchestration skill used to break down user requests.
-* `macher-agent-worker/`: The default subagent skill used to execute code and modify buffers.
+* `macher-agent-plan/`: The simple orchestration skill used to break down user requests.
+* `macher-agent-worker/`: The default general subagent skill used to execute code and modify buffers.
+* `macher-agent-router/`: Implementation of [Ratchet](https://arxiv.org/abs/2605.22148) and generally more reliable than typical planner/work topologies.
+* `macher-agent-synthesiser/`: Paired with `macher-agent-router`.
 
 ### Building Your Own
 
