@@ -122,7 +122,6 @@ Draft the markdown body.
 - Detail the exact workflow steps the agent should take.
 - Mention the tools by name and explain *when* and *how* to use them.
 - Provide examples of good and bad tool usage or output formatting.
-- **CRITICAL:** If this skill is meant to be used as a worker sub-agent, include explicit instructions to use the `submit_task_result` tool to report back to the orchestrator.
 
 ## Testing and Iteration
 

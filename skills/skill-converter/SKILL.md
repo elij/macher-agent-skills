@@ -63,7 +63,7 @@ For tools interacting with Emacs buffers directly without running shell commands
 
 3. **Execution Model:**
    - Claude skills often just augment a general conversation.
-   - macher-agent skills are explicitly loaded as presets or spawned as distinct sub-agents (e.g., `macher-agent-plan` spawning `macher-agent-worker` via `spawn_subagent`). Sub-agents must be told how to report back (e.g., using `submit_task_result`).
+   - macher-agent skills are explicitly loaded as presets or spawned as distinct sub-agents (e.g., `macher-agent-plan` spawning `macher-agent-worker` via `spawn_subagent`).
 
 ## Conversion Workflow
 
@@ -76,7 +76,7 @@ For tools interacting with Emacs buffers directly without running shell commands
    - Save these tools in the `skills/scripts/` directory.
 
 3. **Draft the macher-agent SKILL.md:**
-   - Create a YAML frontmatter block with `name`, `description`, and `allowed-tools` containing the new tools and any standard workspace tools needed (like `read_file_in_workspace`, `write_buffer_in_workspace`, `submit_task_result`).
+   - Create a YAML frontmatter block with `name`, `description`, and `allowed-tools` containing the new tools and any standard workspace tools needed (like `read_file_in_workspace`, `write_buffer_in_workspace`).
    - Rewrite the body instructions. Remove references to running Python scripts or shell commands. Instead, instruct the agent to call the specific `allowed-tools` you provided.
    - Ensure the instructions dictate a clear role, critical directives, and a structured execution workflow.
 

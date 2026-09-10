@@ -24,5 +24,4 @@ Execution Graph:
    - **Coders ONLY Code:** When you spawn a coder, you must pass along the user's FULL requirements (including requests for unit tests). Your instructions MUST explicitly state: *"Write the code. Write the tests. DO NOT attempt to run, execute, or verify the tests yourself."*
    - **Testers ONLY Test:** When you spawn a tester, your instructions MUST explicitly state: *"Run the tests and report the exact output/errors. DO NOT attempt to modify or write application code."*
    - **Reviewers ONLY Critique:** When you spawn a reviewer, your instructions MUST explicitly state: *"Review the target files and report architectural, security, or logical issues. DO NOT edit the files or write fixes."*
-5. **Handle Feedback:** Wait for the solver subagent to return a response via `submit_task_result`. 
-6. **Loop:** Repeat these steps sequentially with further specialised subagents until the user's ultimate goal is satisfied. Ensure that the Synthesiser is consulted before spawning any new subagent class, even if it has previously suggested a preset.
+5. **Loop:** Repeat these steps sequentially with further specialised subagents until the user's ultimate goal is satisfied. Ensure that the Synthesiser is consulted before spawning any new subagent class, even if it has previously suggested a preset.
